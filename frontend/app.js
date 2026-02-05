@@ -140,6 +140,13 @@ function init() {
             sidebar.classList.toggle('open');
             mobileBtn.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
         });
+
+        // Auto-open on mobile load
+        if (window.innerWidth <= 768) {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.add('open');
+            mobileBtn.textContent = '✕';
+        }
     }
 }
 
