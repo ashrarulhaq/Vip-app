@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHuntAI Pro</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://img.icons8.com/fluency/96/find-matching-job.png" alt="Logo" width="60">
+                <h2>⚙️ Configuration</h2>
+            </div>
+
+            <!-- AI Configuration -->
+            <section class="sidebar-section">
+                <h3>🔑 AI Configuration</h3>
+                <div class="form-group">
+                    <label for="provider">Select AI Provider</label>
+                    <select id="provider">
+                        <option value="gemini">Google Gemini</option>
+                        <option value="openrouter">OpenRouter</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="api-key">API Key</label>
+                    <input type="password" id="api-key" placeholder="Enter your API key">
+                </div>
+                <div class="form-group" id="model-group" style="display: none;">
+                    <label for="model">OpenRouter Model</label>
+                    <input type="text" id="model" value="google/gemini-2.0-flash-exp:free"
+                        placeholder="e.g. openai/gpt-4o-mini">
+                </div>
+                <div id="api-status" class="status-badge"></div>
+            </section>
+
+            <!-- Resume -->
+            <section class="sidebar-section">
+                <h3>📄 Resume</h3>
+                <div class="form-group">
+                    <div class="radio-group">
+                        <label><input type="radio" name="resume-method" value="upload" checked> 📎 Upload PDF</label>
+                        <label><input type="radio" name="resume-method" value="paste"> 📝 Paste Text</label>
+                    </div>
+                </div>
+                <div id="upload-section">
+                    <input type="file" id="resume-file" accept=".pdf">
+                    <button id="parse-resume-btn" class="btn btn-secondary">📖 Parse Resume</button>
+                </div>
+                <div id="paste-section" style="display: none;">
+                    <textarea id="resume-text" placeholder="Paste your resume text here..." rows="6"></textarea>
+                    <button id="save-resume-btn" class="btn btn-secondary">💾 Save Resume</button>
+                </div>
+                <div id="resume-status" class="status-badge"></div>
+            </section>
+
+            <!-- Job Search -->
+            <section class="sidebar-section">
+                <h3>🔍 Job Search</h3>
+                <div class="form-group">
+                    <label for="job-title">Job Role/Title</label>
+                    <input type="text" id="job-title" placeholder="e.g. Software Engineer">
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" placeholder="e.g. Bangalore, India">
+                </div>
+                <div class="form-group">
+                    <label for="results-count">Number of Results</label>
+                    <input type="range" id="results-count" min="5" max="50" value="10">
+                    <span id="results-count-value">10</span>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="is-remote"> 🏠 Remote Only</label>
+                </div>
+                <button id="search-btn" class="btn btn-primary">🚀 Search Jobs</button>
+            </section>
+
+            <!-- Filters -->
+            <section class="sidebar-section">
+                <h3>🔧 Filters</h3>
+                <div class="form-group">
+                    <label><input type="checkbox" id="filter-remote"> 🏠 Remote</label>
+                    <label><input type="checkbox" id="filter-hybrid"> 🏢 Hybrid</label>
+                </div>
+                <div class="form-group">
+                    <label for="experience-level">Experience Level</label>
+                    <select id="experience-level">
+                        <option value="">All Levels</option>
+                        <option value="entry">Entry Level</option>
+                        <option value="mid">Mid Level</option>
+                        <option value="senior">Senior Level</option>
+                    </select>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <h1>🎯 JobHuntAI Pro</h1>
+                <p>Advanced AI Recruiter • Scrape jobs • Match your resume • Generate applications</p>
+            </header>
+
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-label">Gemini AI</span>
+                    <span class="stat-value" id="stat-ai">❌ Not configured</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Resume</span>
+                    <span class="stat-value" id="stat-resume">❌ Not uploaded</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Jobs Found</span>
+                    <span class="stat-value" id="stat-jobs">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Avg Match</span>
+                    <span class="stat-value" id="stat-score">--%</span>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading" class="loading-overlay" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p id="loading-text">Loading...</p>
+            </div>
+
+            <!-- Welcome Screen -->
+            <div id="welcome-screen" class="welcome-card">
+                <h2>👋 Welcome to JobHuntAI!</h2>
+                <p>Your intelligent job search assistant.</p>
+
+                <div class="info-box">
+                    <h3>🚀 How to Start</h3>
+                    <ol>
+                        <li><b>Configure AI</b>: Select <b>Gemini</b> (Free) or <b>OpenRouter</b> in the sidebar.</li>
+                        <li><b>Upload Resume</b>: PDF format recommended.</li>
+                        <li><b>Search Jobs</b>: Set your role & location, then click Search.</li>
+                    </ol>
+                </div>
+
+                <div class="info-box info-box-blue">
+                    <h4>💡 How to use Free AI Models</h4>
+                    <ol>
+                        <li>Go to <a href="https://openrouter.ai/" target="_blank">OpenRouter.ai</a> and sign up.</li>
+                        <li>Click <b>Create API Key</b> and copy it.</li>
+                        <li>Come back here, select <b>OpenRouter</b> in the sidebar, and paste the key.</li>
+                        <li>Copy & Paste one of these <b>Free Model IDs</b> into the "Model" box:</li>
+                    </ol>
+                    <div class="code-block">
+                        <code>google/gemini-2.0-flash-exp:free</code>
+                        <code>meta-llama/llama-3.2-11b-vision-instruct:free</code>
+                        <code>huggingfaceh4/zephyr-7b-beta:free</code>
+                    </div>
+                </div>
+
+                <p class="muted-text">
+                    <a href="https://aistudio.google.com/" target="_blank">Need a Google Gemini key? Get it here</a>
+                </p>
+            </div>
+
+            <!-- Jobs Container -->
+            <div id="jobs-container" style="display: none;">
+                <div class="section-header">
+                    <h2>📋 Scraped Jobs</h2>
+                    <div class="header-actions">
+                        <button id="analyze-all-btn" class="btn btn-primary">🤖 Analyze All</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="jobs-table">
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Company</th>
+                                <th>Posted</th>
+                                <th>HR Contact (Email/LinkedIn)</th>
+                                <th>Match</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobs-table-body">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <button id="load-more-btn" class="btn btn-secondary" style="display: none; margin-top: 1rem;">📥 Load
+                    More Jobs</button>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>Professional AI Recruiting Assistant</p>
+                <p class="small">Powered by High-Performance LLMs</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
