@@ -131,6 +131,16 @@ function init() {
     if (dom.analyzeAllBtn) {
         dom.analyzeAllBtn.addEventListener('click', analyzeAllJobs);
     }
+
+    // Mobile Menu Toggle
+    const mobileBtn = document.getElementById('mobile-menu-btn');
+    if (mobileBtn) {
+        mobileBtn.addEventListener('click', () => {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('open');
+            mobileBtn.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+        });
+    }
 }
 
 // ============================================================================
