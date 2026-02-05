@@ -3,3 +3,5 @@ python-jobspy>=1.1.0
 pandas>=2.0.0
 google-generativeai>=0.3.0
 pypdf>=3.17.0
+duckduckgo-search>=5.0.0
+requests>=2.31.0
