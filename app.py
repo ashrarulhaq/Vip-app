@@ -8,6 +8,7 @@ import streamlit as st
 import pandas as pd
 import json
 import re
+import textwrap
 import requests
 from io import BytesIO
 
@@ -280,62 +281,114 @@ st.set_page_config(
 # Custom CSS for styling
 st.markdown("""
 <style>
-    /* Main styling */
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* Main styling - Dark Mode */
+    .stApp {
+        background-color: #0f172a; /* Slate 900 */
+        color: #f1f5f9;
+    }
+
     .main-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 15px;
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(12px);
+        padding: 3rem 1.5rem;
+        border-radius: 24px;
         margin-bottom: 2rem;
-        color: white;
         text-align: center;
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
     
     .main-header h1 {
         margin: 0;
-        font-size: 2.5rem;
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(to right, #60a5fa, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
     }
     
     .main-header p {
-        margin: 0.5rem 0 0 0;
-        opacity: 0.9;
+        margin: 1rem 0 0 0;
+        font-size: 1.1rem;
+        color: #94a3b8; /* Slate 400 */
+        font-weight: 400;
     }
     
-    /* Job cards */
+    /* Job cards - Dark */
     .job-card {
-        background: white;
-        border-radius: 12px;
+        background: #1e293b; /* Slate 800 */
+        border-radius: 16px;
         padding: 1.5rem;
         margin: 1rem 0;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        border-left: 4px solid #667eea;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+        border: 1px solid #334155;
+        transition: transform 0.2s ease;
     }
     
-    /* Score badges */
+    .job-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+        border-color: #475569;
+    }
+    
+    /* Badges */
     .score-high {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: bold;
-        display: inline-block;
+        background: rgba(22, 101, 52, 0.2);
+        color: #4ade80;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        border: 1px solid #166534;
     }
     
     .score-medium {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: bold;
-        display: inline-block;
+        background: rgba(133, 77, 14, 0.2);
+        color: #facc15;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        border: 1px solid #854d0e;
     }
     
     .score-low {
-        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
-        color: white;
+        background: rgba(153, 27, 27, 0.2);
+        color: #f87171;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        border: 1px solid #991b1b;
+    }
+    
+    /* Buttons */
+    .stButton button {
+        border-radius: 10px;
+        font-weight: 500;
         padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: bold;
-        display: inline-block;
+        height: auto;
+    }
+    
+    /* Mobile Responsiveness */
+    @media (max-width: 640px) {
+        .main-header {
+            padding: 1.5rem 1rem;
+            border-radius: 16px;
+        }
+        .main-header h1 {
+            font-size: 2rem;
+        }
+        .stButton button {
+            width: 100%;
+        }
     }
     
     /* Sidebar styling */
@@ -770,7 +823,7 @@ with st.sidebar:
         api_key = st.text_input(
             "Google Gemini API Key",
             type="password",
-            help="Get your free API key from https://aistudio.google.com/"
+            help="Get your API key from https://aistudio.google.com/"
         )
         
         if api_key:
@@ -880,8 +933,8 @@ with st.sidebar:
 # Header
 st.markdown("""
 <div class="main-header">
-    <h1>🎯 JobHuntAI - Free Edition</h1>
-    <p>Your AI-powered personal recruiter • Scrape jobs • Match your resume • Generate applications</p>
+    <h1>🎯 JobHuntAI Pro</h1>
+    <p>Advanced AI Recruiter • Scrape jobs • Match your resume • Generate applications</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1149,28 +1202,44 @@ if st.session_state.analyzed_jobs:
 
 # Empty state
 if st.session_state.jobs_df is None:
-    st.markdown("""
-    <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 15px; margin: 2rem 0;">
-        <h2>👋 Welcome to JobHuntAI!</h2>
-        <p style="font-size: 1.2rem; color: #666;">Get started in 3 easy steps:</p>
-        <ol style="text-align: left; max-width: 400px; margin: 0 auto; font-size: 1.1rem;">
-            <li>🔑 Enter your <b>Gemini API key</b> in the sidebar</li>
-            <li>📄 Upload your <b>resume</b> (PDF)</li>
-            <li>🔍 Set your job preferences and click <b>Search Jobs</b></li>
-        </ol>
-        <p style="margin-top: 2rem; color: #888;">
-            <a href="https://aistudio.google.com/" target="_blank">
-                🆓 Get your free Gemini API key here
-            </a>
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("""<div class="job-card" style="text-align: center; max-width: 800px; margin: 0 auto;">
+<h2>👋 Welcome to JobHuntAI!</h2>
+<p style="font-size: 1.1rem; opacity: 0.8; margin-bottom: 2rem;">Your intelligent job search assistant.</p>
+<div style="text-align: left; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+<h3 style="margin-top: 0;">🚀 How to Start</h3>
+<ol style="line-height: 1.8; margin-bottom: 0;">
+<li><b>Configure AI</b>: Select <b>Gemini</b> (Free) or <b>OpenRouter</b> in the sidebar.</li>
+<li><b>Upload Resume</b>: PDF format recommended.</li>
+<li><b>Search Jobs</b>: Set your role & location, then click Search.</li>
+</ol>
+</div>
+<div style="text-align: left; background: rgba(59, 130, 246, 0.1); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.2);">
+<h4 style="margin-top: 0; color: #60a5fa;">💡 How to use Free AI Models</h4>
+<ol style="margin: 0; padding-left: 1.2rem; line-height: 1.8;">
+<li>Go to <a href="https://openrouter.ai/" target="_blank" style="color: #60a5fa;">OpenRouter.ai</a> and sign up.</li>
+<li>Click <b>Create API Key</b> and copy it.</li>
+<li>Come back here, select <b>OpenRouter</b> in the sidebar, and paste the key.</li>
+<li>Copy & Paste one of these <b>Free Model IDs</b> into the "Model" box:</li>
+</ol>
+<div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+<p style="margin: 0 0 0.5rem 0; font-size: 0.85rem; opacity: 0.7;">Click to select & copy:</p>
+<code style="display: block; padding: 5px; margin-bottom: 5px;">google/gemini-2.0-flash-exp:free</code>
+<code style="display: block; padding: 5px; margin-bottom: 5px;">meta-llama/llama-3.2-11b-vision-instruct:free</code>
+<code style="display: block; padding: 5px;">huggingfaceh4/zephyr-7b-beta:free</code>
+</div>
+</div>
+<p style="margin-top: 2rem; opacity: 0.6; font-size: 0.9rem;">
+<a href="https://aistudio.google.com/" target="_blank" style="color: inherit; text-decoration: underline;">
+Need a Google Gemini key? Get it here
+</a>
+</p>
+</div>""", unsafe_allow_html=True)
 
 
 # Footer
 st.markdown("""
 <div style="text-align: center; padding: 2rem; color: #888; margin-top: 2rem;">
-    <p>Made with ❤️ using Streamlit, python-jobspy & Google Gemini</p>
-    <p style="font-size: 0.8rem;">100% Free • No Paid APIs • Open Source</p>
+    <p>Professional AI Recruiting Assistant</p>
+    <p style="font-size: 0.8rem;">Powered by High-Performance LLMs</p>
 </div>
 """, unsafe_allow_html=True)
