@@ -855,18 +855,37 @@ with st.sidebar:
     
     # Resume Upload Section
     st.subheader("📄 Resume")
-    uploaded_resume = st.file_uploader(
-        "Upload your resume (PDF)",
-        type=['pdf'],
-        help="Upload your resume to enable job matching"
+    
+    resume_input_method = st.radio(
+        "Input Method",
+        ["📎 Upload PDF", "📝 Paste Text"],
+        horizontal=True,
+        help="On mobile? Use 'Paste Text' if upload doesn't work"
     )
     
-    if uploaded_resume:
-        if st.button("📖 Parse Resume"):
-            resume_text = extract_resume_text(uploaded_resume)
-            if resume_text:
-                st.session_state.resume_text = resume_text
-                st.success(f"✅ Resume parsed! ({len(resume_text)} characters)")
+    if resume_input_method == "📎 Upload PDF":
+        uploaded_resume = st.file_uploader(
+            "Upload your resume (PDF)",
+            type=['pdf'],
+            help="Upload your resume to enable job matching"
+        )
+        
+        if uploaded_resume:
+            if st.button("📖 Parse Resume"):
+                resume_text = extract_resume_text(uploaded_resume)
+                if resume_text:
+                    st.session_state.resume_text = resume_text
+                    st.success(f"✅ Resume parsed! ({len(resume_text)} characters)")
+    else:
+        resume_text_input = st.text_area(
+            "Paste your resume text",
+            height=200,
+            placeholder="Copy and paste your resume content here...",
+            help="Paste the full text from your resume"
+        )
+        if resume_text_input and st.button("💾 Save Resume"):
+            st.session_state.resume_text = resume_text_input
+            st.success(f"✅ Resume saved! ({len(resume_text_input)} characters)")
     
     if st.session_state.resume_text:
         with st.expander("👀 Preview Resume Text"):
